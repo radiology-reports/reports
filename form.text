@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>فرم گزارش</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 1em;
+      background: #f8f8f8;
+      direction: rtl;
+      max-width: 600px;
+      margin: auto;
+    }
+    label {
+      display: block;
+      margin-top: 1em;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 0.5em;
+      margin-top: 0.3em;
+    }
+    button {
+      margin-top: 1.5em;
+      padding: 0.7em 2em;
+      font-size: 1em;
+      background: #1976d2;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .success {
+      color: green;
+      margin-top: 1em;
+    }
+  </style>
+</head>
+<body>
+  <h2>فرم ثبت گزارش</h2>
+  <form id="reportForm">
+    <label>تاریخ:</label>
+    <input type="date" name="date" required>
+
+    <label>موضوع:</label>
+    <input type="text" name="subject" required>
+
+    <label>متن گزارش:</label>
+    <textarea name="text" rows="5" required></textarea>
+
+    <label>پیوست فایل‌ها (اختیاری):</label>
+    <input type="file" name="files" id="files" multiple>
+
+    <button type="submit">ارسال</button>
+    <div class="success" id="msg"></div>
+  </form>
+
+  <script>
+    const form = document.getElementById('reportForm');
+    const msg = document.getElementById('msg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const date = form.date.value;
+      const subject = form.subject.value;
+      const text = form.text.value;
+      const files = document.getElementById('files').files;
+
+      // آپلود فایل‌ها به گوگل درایو؟ خیر، اینجا آپلود واقعی نداریم
+      // فعلاً فقط نام فایل‌ها یا لینک (اگه بتونی لینک بدی)
+      const fileLinks = Array.from(files).map(f => f.name); // فقط نام فایل‌ها
+
+      const data = { date, subject, text, fileLinks };
+
+      const res = await fetch("https://script.google.com/macros/s/AKfycby8hZuK_rQSZdA6qQ8A0KhRJVdEcmOsXKlksPb--UAqUZTy40EdqwK-xtXvcKJ5Fqwh/exec", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+
+      const json = await res.json();
+      if (json.result === "success") {
+        msg.textContent = "گزارش با موفقیت ثبت شد!";
+        form.reset();
+      } else {
+        msg.textContent = "خطا در ارسال گزارش.";
+      }
+    });
+  </script>
+</body>
+</html>
